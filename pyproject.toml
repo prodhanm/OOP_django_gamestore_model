@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "game-store"
+version = "0.1.0"
+description = "This is the extended e-com-model with server control added"
+authors = ["prodhanm <mustafizur.prodhan@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+django = "5.2.1"
+python-dotenv = "^1.1.1"
+pillow = "^11.3.0"
+django-mathfilters = "^1.0.0"
+django-crispy-forms = "^2.4"
+django-utils-six = "^2.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
