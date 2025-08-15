@@ -1,0 +1,55 @@
+{% include "store/base.html" %}
+
+{% load static %}
+
+{% block content %}
+
+    <style>
+        body {
+            background-color: #708090; /* Slate Gray */
+        }
+        .container {
+            max-width: 500px;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+
+        h3 {
+            font-weight: bold;
+        }
+
+        h5 {
+            color: #6c757d;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+    </style>
+
+    <body>
+        <br>
+
+        <div class="container bg-white shadow-md p-5 form-layout">
+
+            <div class="text-center mb-4">
+                <i class="fa fa-credit-card-alt fa-3x text-success" aria-hidden="true"></i>
+                <br> <br>
+
+                <h1>VICTORY! Payment success</h1>
+
+                <p>Your order has been processed successfully.</p>
+            </div>
+
+        </div>
+        
+    </body>
+
+    
+
+{% endblock %}
