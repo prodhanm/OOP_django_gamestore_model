@@ -30,7 +30,23 @@
 
         <div class="container bg-white shadow-md p-5 form-layout">
 
-            <h3> Login to your account </h3>
+            <h3> <i class="fa fa-address-book" aria-hidden="true"></i> &nbsp; Profile management </h3>
+
+            <p> Manage your account effectively. </p>
+
+            <hr>
+            
+
+
+        </div>
+
+        <br>
+
+        <div class="container bg-white shadow-md p-5 form-layout">
+
+            <h4> Update your account </h4>
+
+            <p> Feel free to make changes to your account. </p>
 
             <hr>
 
@@ -43,36 +59,34 @@
                 {{form.username|as_crispy_field}}
 
 
-                <br> 
+                <br> <br>
 
 
-                {{form.password|as_crispy_field}}
-
-                <br> 
-
-                
-                <button type="submit" class="btn btn-primary navbar-btn text-white w-100 p-2"> &nbsp; <i class="fa fa-key" aria-hidden="true"></i> &nbsp; Login </button>
+                {{form.email|as_crispy_field}}
 
                 <br> <br>
 
-                {{form.non_field_errors}}
-
-                <div class="text-center">
-
-                    <a href="{% url 'register' %}"> Don't have an account? </a>
-
-
-                    <br> <br>
-                    <a href="{% url 'password_reset' %}"> Forgot your password? </a>
-
-                </div>
+                
+                <button type="submit" class="btn btn-primary navbar-btn text-white"> &nbsp; Update your account </button>
 
 
             </form>
 
 
+        </div>
+
+        <br>
 
 
+        <div class="container bg-white shadow-md p-5 form-layout">
+
+            <h4> Delete your account </h4>
+
+            <p> Proceed if you wish to delete your account.</p>
+
+            <hr>
+
+            <a class="btn btn-primary navbar-btn text-white" type="button"  href="{% url 'delete_account' %}"> Delete your account </a>
 
         </div>
 
