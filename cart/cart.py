@@ -40,6 +40,8 @@ class Cart():
     def __iter__(self):
         all_product_ids = self.cart.keys()
         products = Product.objects.filter(id__in=all_product_ids)
+        # OPTIMIZED: Prefetch related images to avoid additional database queries
+        products = Product.objects.filter(id__in=all_product_ids).prefetch_related('images')
         import copy
         cart = copy.deepcopy(self.cart)
         for product in products:
