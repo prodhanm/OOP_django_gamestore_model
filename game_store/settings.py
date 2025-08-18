@@ -157,3 +157,27 @@ PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID')
 PAYPAL_CLIENT_SECRET = os.environ.get('PAYPAL_CLIENT_SECRET', default='')
 
 SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
+
+# AWS configuration for static and media files
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+
+# AWS S3 bucket name
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+
+# Django 5.2.1 > storage configuration for s3
+
+STORAGES = {
+    # Media files (image) management
+    "default": {
+        "BACKEND": os.environ.get("DEFAULT_STORAGE_BACKEND"),
+    },
+
+    # Static files (css, js) management
+    "staticfiles": {
+        "BACKEND": os.environ.get("STATIC_STORAGE_BACKEND"),
+    },
+}
+
+AWS_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+AWS_S3_FILE_OVERWRITE = os.environ.get('AWS_S3_FILE_OVERWRITE')
