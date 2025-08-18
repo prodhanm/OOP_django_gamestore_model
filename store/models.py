@@ -50,7 +50,7 @@ class Product(models.Model):
     
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='product_images/')
+    image = models.ImageField(upload_to='images/')
     alt_text = models.CharField(max_length=200, blank=True, help_text="Alternative text for accessibility")
     is_main = models.BooleanField(default=False, help_text="Check if this is the main product image")
     order = models.PositiveIntegerField(default=0, help_text="Order of image display")

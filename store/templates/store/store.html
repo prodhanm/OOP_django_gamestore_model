@@ -65,7 +65,11 @@
                 
                 <div class="card shadow-sm">
                 
-                  <img class="img-fluid" alt="Responsive image" src="{{ product.image.url }}">
+                  {% if product.get_main_image %}
+                    <img class="img-fluid" alt="Responsive image" src="{{ product.get_main_image.url }}">
+                  {% else %}
+                    <img class="img-fluid" alt="Responsive image" src="{% static 'images/no-image.png' %}">
+                  {% endif %}
                 
                   <div class="card-body">
                 
