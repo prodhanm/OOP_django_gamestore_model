@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from . models import Category, Product
 from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from django.db.models import Q
 
 # Create your views here.
 def store(request):
@@ -23,3 +25,51 @@ def product_info(request, product_slug):
     product_images = product.images.all()
     context = {'product': product, 'product_images': product_images}
     return render(request, 'store/product_info.html', context=context)
+
+def live_search(request):
+    """
+    Handle live search requests via AJAX
+    Returns JSON response with matching products
+    """
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        query = request.GET.get('q', '').strip()
+        
+        if query:
+            # Search in title, brand, and description
+            products = Product.objects.filter(
+                Q(title__icontains=query) | 
+                Q(brand__icontains=query) | 
+                Q(description__icontains=query),
+                available=True  # Only show available products
+            ).prefetch_related('images')[:20]  # Limit to 20 results for performance
+            
+            # Prepare data for JSON response
+            results = []
+            for product in products:
+                main_image_url = ''
+                if product.get_main_image():
+                    main_image_url = product.get_main_image().url
+                
+                results.append({
+                    'id': product.id,
+                    'title': product.title,
+                    'brand': product.brand,
+                    'price': str(product.price),
+                    'slug': product.slug,
+                    'image_url': main_image_url,
+                    'url': product.get_absolute_url()
+                })
+            
+            return JsonResponse({
+                'status': 'success',
+                'results': results,
+                'count': len(results)
+            })
+        else:
+            return JsonResponse({
+                'status': 'success',
+                'results': [],
+                'count': 0
+            })
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
