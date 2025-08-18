@@ -1,0 +1,335 @@
+{% extends "./base.html" %}
+
+{% load static %}
+
+
+{% block content %}
+
+  <style>
+    .search-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+  .search-results {
+      border-top: none;
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+  }
+
+    .search-result-item {
+        padding: 10px 15px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .search-result-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .search-result-item:last-child {
+        border-bottom: none;
+    }
+
+      .search-result-image {
+          width: 50px;
+          height: 50px;
+          object-fit: cover;
+      }
+
+    #liveSearch:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    .product-item {
+        transition: transform 0.2s;
+    }
+
+    .product-item:hover {
+        transform: translateY(-2px);
+    }
+</style>
+
+
+    <!-- Introduction section -->
+  
+    <section class="py-4 text-center container">
+
+        <div class="row py-lg-5">
+        
+            <div class="col-lg-6 col-md-8 mx-auto">
+                
+
+                <h4> GameStore Model... When you level up, we level up. </h4>
+
+
+                <br>
+                
+
+                <p class="lead text-muted">
+
+                Browse our extensive collection of retro games.
+
+                </p>
+
+                <!-- LIVE SEARCH BAR -->
+                <div class="search-container position-relative mb-4">
+                    <div class="input-group">
+                        <input type="text" 
+                               id="liveSearch" 
+                               class="form-control form-control-lg" 
+                               placeholder="Search for games, brands, or descriptions..." 
+                               autocomplete="off">
+                        <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Search Results Dropdown -->
+                    <div id="searchResults" class="search-results position-absolute w-100 bg-white border rounded shadow-lg" style="display: none; z-index: 1000; max-height: 400px; overflow-y: auto;">
+                        <!-- Results will be populated here -->
+                    </div>
+                    
+                    <!-- Search Status -->
+                    <div id="searchStatus" class="text-muted small mt-2" style="display: none;">
+                        <!-- Status messages will appear here -->
+                    </div>
+                </div>
+
+
+                <br>
+        
+                <a href="{% url 'register' %}" class="btn btn-primary my-2"> <i class="fa fa-user-plus" aria-hidden="true"></i> &nbsp; Create an account </a>
+                
+                
+            </div>
+        
+        </div>
+
+    </section>
+
+
+       <!-- All products section -->
+      
+       <div class="album py-5 bg-light">
+        
+        <div class="container">
+    
+          <div class="pb-3 h5"> All products </div>
+
+
+          <hr>
+
+          <br>
+          
+
+          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-5 g-3">
+    
+            
+            {% for product in my_products %}
+
+    
+              <div class="col">
+                
+                <div class="card shadow-sm">
+                
+                  {% if product.get_main_image %}
+                    <img class="img-fluid" alt="Responsive image" src="{{ product.get_main_image.url }}">
+                  {% else %}
+                    <img class="img-fluid" alt="Responsive image" src="{% static 'images/no-image.png' %}">
+                  {% endif %}
+                
+                  <div class="card-body">
+                
+                    <p class="card-text">
+                
+                      <a class="text-info text-decoration-none" href="{{ product.get_absolute_url }}"> {{ product.title | capfirst }} </a>
+                
+                    </p>
+                
+                    <div class="d-flex justify-content-between align-items-center">
+                
+                      <h5> $ {{ product.price }} </h5>
+                
+                    </div>
+                
+                  </div>
+                
+                </div>
+              
+              </div>
+    
+
+            {% endfor %}
+            
+    
+          </div>
+
+        </div>
+      
+      </div>
+
+<script>
+$(document).ready(function() {
+    let searchTimeout;
+    const searchInput = $('#liveSearch');
+    const searchResults = $('#searchResults');
+    const searchStatus = $('#searchStatus');
+    const clearButton = $('#clearSearch');
+    
+    // Live search functionality
+    searchInput.on('input', function() {
+        const query = $(this).val().trim();
+        
+        // Clear previous timeout
+        clearTimeout(searchTimeout);
+        
+        if (query.length === 0) {
+            // Hide search results dropdown
+            searchResults.hide();
+            searchStatus.hide();
+            return;
+        }
+        
+        if (query.length < 1) {
+            return;
+        }
+        
+        // Show searching status
+        searchStatus.show().text('Searching...');
+        
+        // Set timeout to avoid too many requests
+        searchTimeout = setTimeout(function() {
+            performSearch(query);
+        }, 300); // Wait 300ms after user stops typing
+    });
+    
+    // Clear search functionality
+    clearButton.on('click', function() {
+        searchInput.val('');
+        searchResults.hide();
+        searchStatus.hide();
+    });
+    
+    // Hide search results when clicking outside
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('.search-container').length) {
+            searchResults.hide();
+        }
+    });
+    
+    // Show search results when clicking on input (if there's content)
+    searchInput.on('focus', function() {
+        if ($(this).val().trim().length > 0 && searchResults.children().length > 0) {
+            searchResults.show();
+        }
+    });
+    
+    function performSearch(query) {
+        $.ajax({
+            url: '{% url "live_search" %}',
+            type: 'GET',
+            data: { 'q': query },
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            success: function(data) {
+                if (data.status === 'success') {
+                    displaySearchResults(data.results, query);
+                    updateSearchStatus(data.count, query);
+                } else {
+                    searchStatus.show().text('Search error occurred.');
+                }
+            },
+            error: function() {
+                searchStatus.show().text('Search error occurred.');
+            }
+        });
+    }
+    
+    function displaySearchResults(results, query) {
+        if (results.length === 0) {
+            searchResults.html(`
+                <div class="search-result-item text-center p-3">
+                    <div class="text-muted">
+                        <i class="fa fa-search mb-2"></i>
+                        <p class="mb-0">No products found for "<strong>${query}</strong>"</p>
+                    </div>
+                </div>
+            `).show();
+        } else {
+            let html = '';
+            results.forEach(function(product) {
+                const imageHtml = product.image_url ? 
+                    `<img class="search-result-image me-3 rounded" src="${product.image_url}" alt="${product.title}">` :
+                    `<div class="search-result-image me-3 rounded bg-light d-flex align-items-center justify-content-center">
+                        <i class="fa fa-image text-muted"></i>
+                    </div>`;
+                
+                html += `
+                    <div class="search-result-item" onclick="window.location.href='${product.url}'">
+                        <div class="d-flex align-items-center">
+                            ${imageHtml}
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">${highlightMatch(product.title, query)}</h6>
+                                <small class="text-muted">${product.brand}</small>
+                                <div class="text-success fw-bold">${product.price}</div>
+                            </div>
+                            <div class="text-end">
+                                <i class="fa fa-chevron-right text-muted"></i>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // Add "View All Results" option if there are many results
+            if (results.length >= 10) {
+                html += `
+                    <div class="search-result-item border-top bg-light" onclick="viewAllResults('${query}')">
+                        <div class="text-center p-2">
+                            <strong class="text-primary">
+                                <i class="fa fa-list me-2"></i>
+                                View all results for "${query}"
+                            </strong>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            searchResults.html(html).show();
+        }
+    }
+    
+    function highlightMatch(text, query) {
+        const regex = new RegExp(`(${query})`, 'gi');
+        return text.replace(regex, '<mark>$1</mark>');
+    }
+    
+    function updateSearchStatus(count, query) {
+        if (count > 0) {
+            searchStatus.show().text(`Found ${count} product${count !== 1 ? 's' : ''}`);
+        } else {
+            searchStatus.show().text(`No results found`);
+        }
+        
+        // Hide status after 3 seconds
+        setTimeout(function() {
+            searchStatus.fadeOut();
+        }, 3000);
+    }
+    
+    // Function to handle "View All Results" click
+    window.viewAllResults = function(query) {
+        // You can implement this to redirect to a full search results page
+        // For now, we'll just hide the dropdown
+        searchResults.hide();
+        alert(`This would show all results for "${query}" on a dedicated search page.`);
+    };
+});
+</script>
+
+
+{% endblock %}

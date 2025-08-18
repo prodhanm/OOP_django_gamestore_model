@@ -1,0 +1,152 @@
+{% extends "./base.html" %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="container">
+
+    <main class="pt-5">
+
+        <div class="row g-3">
+
+            <div class="col-md-5 col-lg-5 order-md-first bg-light">
+            {% if product_images %}
+                    <!-- Main image display -->
+                    <div class="main-image mb-3">
+                        {% if product.get_main_image %}
+                            <img id="mainImage" class="img-fluid mx-auto d-block" alt="Responsive image" src="{{ product.get_main_image.url }}">
+                        {% else %}
+                            <img id="mainImage" class="img-fluid mx-auto d-block" alt="Responsive image" src="{{ product_images.0.image.url }}">
+                        {% endif %}
+                    </div>
+        
+        <!-- Thumbnail gallery if more than one image -->
+                {% if product_images|length > 1 %}
+                    <div class="image-thumbnails d-flex justify-content-center flex-wrap">
+                        {% for image in product_images %}
+                            <img class="thumbnail-img me-2 mb-2" 
+                                src="{{ image.image.url }}" 
+                                alt="{{ image.alt_text|default:product.title }}"
+                                onclick="changeMainImage('{{ image.image.url }}')"
+                                style="width: 60px; height: 60px; object-fit: cover; cursor: pointer; border: 2px solid transparent;"
+                                onmouseover="this.style.border='2px solid #007bff'"
+                                onmouseout="this.style.border='2px solid transparent'">
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% else %}
+                <img class="img-fluid mx-auto d-block" alt="Responsive image" src="{% static 'images/no-image.png' %}">
+            {% endif %}
+        </div>
+
+            <div class="col-md-7 col-lg-7 ps-md-3 ps-lg-5">
+
+                <h1 class="mb-0 h4"> {{ product.title }}  </h1>
+
+                <strong> {{ product.brand }} </strong>
+
+
+                <hr>
+
+                <br>
+
+
+                <p> {{ product.description }} </p>
+
+                <div class="border">
+
+                    <div class="col border-bottom">
+
+                        <div class="row p-3">
+
+                            <div class="col-6"> Price </div>
+
+                            <div class="col-6 text-end"><span class="h4 fw-bold">$ {{ product.price }} </span></div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col">
+              
+                        <div class="row p-3">
+              
+                            <div class="col-6">
+              
+                               
+                                <label for="select">Qty</label>
+                                
+                                &nbsp; 
+                               
+                                <select id="select">
+              
+                                    <option value="1">1</option>
+              
+                                    <option value="2">2</option>
+              
+                                    <option value="3">3</option>
+              
+                                    <option value="4">4</option>
+              
+                                </select>
+
+                            </div>
+
+                            <div class="col-6 text-end">
+                                
+                                <button type="button" id="add-button" value="{{ product.id }}" class="btn btn-secondary btn-sm">
+                        
+                                Add to cart 
+                            
+                                </button> 
+                            
+
+                            </div>
+                        
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <br>
+
+</div>
+
+<script>
+
+   $(document).on('click', '#add-button', function(e){
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'cart_add' %}",
+            data: {
+                product_id: $('#add-button').val(),
+                product_quantity: $('#select option:selected').text(),
+                csrfmiddlewaretoken: "{{ csrf_token }}",  // Include CSRF token for security
+                action:'post'
+            },
+            success: function(json) {
+                console.log(json);
+                document.getElementById("cart-qty").textContent = json.qty; // Update cart quantity display
+            },
+            error: function(xhr, errmsg, err) {
+                
+            }
+        });
+   });
+
+   function changeMainImage(imageUrl) {
+            document.getElementById('mainImage').src = imageUrl;
+        }
+
+</script>
+
+{% endblock %}
