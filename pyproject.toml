@@ -15,6 +15,9 @@ django-mathfilters = "^1.0.0"
 django-crispy-forms = "^2.4"
 django-utils-six = "^2.0"
 crispy-bootstrap4 = "^2025.6"
+boto3 = "^1.40.12"
+django-storages = "^1.14.6"
+psycopg2-binary = "^2.9.10"
 
 
 [build-system]
